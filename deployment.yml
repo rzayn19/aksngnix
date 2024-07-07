@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: shantanu1990/nginx:latest
+  imagePullSecrets:
+  - name: docker-secret
