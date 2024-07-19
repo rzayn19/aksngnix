@@ -5,6 +5,4 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: shantanu1990/nginx:latest
-  imagePullSecrets:
-  - name: docker-secret
+    image: rdacr.azurecr.io/rzayn19/aksngnix/ngnix
