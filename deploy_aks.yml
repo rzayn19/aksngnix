@@ -27,7 +27,7 @@
 
     - name: Lookup Kubernetes manifests
       k8s:
-        kubeconfig: ~/.kube/config
+        kubeconfig: "{{ kubeconfig }}"
         state: present
         definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
 
