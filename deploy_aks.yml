@@ -19,7 +19,7 @@
         version: HEAD
 
     - name: Apply Kubernetes manifests
-      kubernetes.core.k8s:
+      community.kubernetes.k8s:
         kubeconfig: "{{ kubeconfig }}"
         state: present
         definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
