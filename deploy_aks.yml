@@ -1,34 +1,49 @@
 ---
 - name: Deploy Docker application to AKS
   hosts: localhost
-  tasks:
-    - name: Ensure kubectl is installed
-      shell: |
-        az aks install-cli
+  connection: local
+  gather_facts: no
+  vars:
+    aks_resource_group: "rdaksdemo"
+    aks_cluster_name: "rdaks"
+    kubeconfig_path: "{{ kubeconfig_path }}"
 
-    - name: Get AKS credentials
-      shell: |
-        az aks get-credentials --resource-group rdaksdemo --name rdaks
-      environment:
-        AZURE_SUBSCRIPTION_ID: "{{ azure_subscription_id }}"
-        AZURE_CLIENT_ID: "{{ azure_client_id }}"
-        AZURE_SECRET: "{{ azure_secret }}"
-        AZURE_TENANT: "{{ azure_tenant }}"
+  tasks:
+    - name: Ensure the necessary directory exists
+      file:
+        path: /tmp/your-app
+        state: directory
 
     - name: Clone the Git repository
       git:
         repo: 'https://github.com/rzayn19/aksngnix.git'
         dest: /tmp/your-app
+        version: HEAD
 
-    - name: Ensure the deployment directory exists
+    - name: Ensure kubeconfig file is writable
       file:
-        path: /tmp/your-app
-        state: directory
+        path: "{{ kubeconfig_path }}"
+        mode: '0600'
 
-    - name: Lookup Kubernetes manifests
-      k8s:
-        kubeconfig: ~/.kube/config
-        state: present
-        definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
+    - name: Set kubectl context
+      shell: |
+        az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-		
+    - name: Apply Kubernetes manifests
+      shell: |
+        kubectl apply -f /tmp/your-app/deployment.yml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Verify deployment
+      shell: |
+        kubectl get deployments
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: deploy_status
+
+    - name: Show deployment status
+      debug:
+        msg: "{{ deploy_status.stdout }}"
