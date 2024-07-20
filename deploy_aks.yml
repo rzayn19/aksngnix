@@ -6,45 +6,37 @@
   vars:
     aks_resource_group: "rdaksdemo"
     aks_cluster_name: "rdaks"
-    kubeconfig_path: "{{ kubeconfig }}"
+    kubeconfig_path: "{{ kubeconfig_path }}"
 
   tasks:
     - name: Ensure the necessary directory exists
-      local_action:
-        module: file
+      file:
         path: /tmp/your-app
         state: directory
 
     - name: Clone the Git repository
-      local_action:
-        module: git
+      git:
         repo: 'https://github.com/rzayn19/aksngnix.git'
         dest: /tmp/your-app
         version: HEAD
 
     - name: Set kubectl context
-      local_action:
-        module: shell
-        cmd: |
-          az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
+      shell: |
+        az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
       environment:
-        kubeconfig_path: "{{ kubeconfig }}"
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
     - name: Apply Kubernetes manifests
-      local_action:
-        module: shell
-        cmd: |
-          kubectl apply -f /tmp/your-app/deployment.yml
+      shell: |
+        kubectl apply -f /tmp/your-app/deployment.yml
       environment:
-       kubeconfig_path: "{{ kubeconfig}}"
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
     - name: Verify deployment
-      local_action:
-        module: shell
-        cmd: |
-          kubectl get deployments
+      shell: |
+        kubectl get deployments
       environment:
-        kubeconfig_path: "{{ kubeconfig }}"
+        KUBECONFIG: "{{ kubeconfig_path }}"
       register: deploy_status
 
     - name: Show deployment status
