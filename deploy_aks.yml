@@ -28,7 +28,7 @@
         cmd: |
           az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
       environment:
-        KUBECONFIG: "{{ kubeconfig }}"
+        kubeconfig_path: "{{ kubeconfig }}"
 
     - name: Apply Kubernetes manifests
       local_action:
@@ -36,7 +36,7 @@
         cmd: |
           kubectl apply -f /tmp/your-app/deployment.yml
       environment:
-        KUBECONFIG: "{{ kubeconfig}}"
+       kubeconfig_path: "{{ kubeconfig}}"
 
     - name: Verify deployment
       local_action:
@@ -44,7 +44,7 @@
         cmd: |
           kubectl get deployments
       environment:
-        KUBECONFIG: "{{ kubeconfig }}"
+        kubeconfig_path: "{{ kubeconfig }}"
       register: deploy_status
 
     - name: Show deployment status
