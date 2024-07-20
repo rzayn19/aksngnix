@@ -1,34 +1,25 @@
 ---
 - name: Deploy Docker application to AKS
   hosts: localhost
+  gather_facts: no
   tasks:
     - name: Ensure kubectl is installed
       shell: |
         az aks install-cli
 
-    - name: Get AKS credentials
-      shell: |
-        az aks get-credentials --resource-group rdaksdemo --name rdaks
-      environment:
-        AZURE_SUBSCRIPTION_ID: "{{ azure_subscription_id }}"
-        AZURE_CLIENT_ID: "{{ azure_client_id }}"
-        AZURE_SECRET: "{{ azure_secret }}"
-        AZURE_TENANT: "{{ azure_tenant }}"
+    - name: Ensure the necessary directory exists
+      file:
+        path: /tmp/your-app
+        state: directory
 
     - name: Clone the Git repository
       git:
         repo: 'https://github.com/rzayn19/aksngnix.git'
         dest: /tmp/your-app
+        version: HEAD
 
-    - name: Ensure the deployment directory exists
-      file:
-        path: /tmp/your-app
-        state: directory
-
-    - name: Lookup Kubernetes manifests
+    - name: Apply Kubernetes manifests
       k8s:
         kubeconfig: "{{ kubeconfig }}"
         state: present
         definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
-
-		
