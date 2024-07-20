@@ -31,13 +31,11 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Apply Kubernetes manifests
-      kubernetes.core.k8s:
-        kubeconfig: "{{ kubeconfig_path }}"
-        definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
-        state: present
-        environment:
-        ANSIBLE_COLLECTIONS_PATHS: "/root/.ansible/collections"
+     - name: Apply Kubernetes manifests
+      shell: |
+        kubectl apply -f /tmp/your-app/deployment.yml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
     - name: Verify deployment
       shell: |
