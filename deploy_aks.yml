@@ -17,9 +17,13 @@
         repo: 'https://github.com/rzayn19/aksngnix.git'
         dest: /tmp/your-app
         version: HEAD
-
+        
+    - name: Read deployment definition
+      set_fact:
+       definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
+       
     - name: Apply Kubernetes manifests
-      k8s:
-        kubeconfig: "{{ kubeconfig }}"
-        state: present
-        definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
+      kubernetes.core.k8s:
+      definition: "{{ deployment_definition }}"
+      state: present
+        
