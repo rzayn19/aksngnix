@@ -20,6 +20,5 @@
 
     - name: Apply Kubernetes manifests
       community.kubernetes.k8s:
-        kubeconfig: "{{ kubeconfig }}"
         state: present
         definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
