@@ -36,6 +36,8 @@
         kubeconfig: "{{ kubeconfig_path }}"
         definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
         state: present
+        environment:
+        ANSIBLE_COLLECTIONS_PATHS: "/root/.ansible/collections"
 
     - name: Verify deployment
       shell: |
