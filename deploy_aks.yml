@@ -20,6 +20,11 @@
         dest: /tmp/your-app
         version: HEAD
 
+    - name: Ensure kubeconfig file is writable
+      file:
+        path: "{{ kubeconfig_path }}"
+        mode: '0600'
+
     - name: Set kubectl context
       shell: |
         az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
