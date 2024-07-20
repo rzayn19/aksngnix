@@ -1,0 +1,79 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define environment variables for ACR
+        ACR_NAME = 'rdacr'
+        ACR_REPO = 'rdacr.azurecr.io/rzayn19/aksngnix'
+        IMAGE_NAME = 'ngnix'
+        AZURE_CRED_ID = 'test-creds'
+        KUBECONFIG_ID = 'kubeconfig' // ID for the kubeconfig credential
+        ANSIBLE_COLLECTIONS_PATHS = '/root/.ansible/collections'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from Git
+                git branch: 'main', url: 'https://github.com/rzayn19/aksngnix.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    sh "docker build -t ${ACR_REPO}/${IMAGE_NAME}:latest ."
+                }
+            }
+        }
+    
+        stage('Login to ACR') {
+            steps {
+                withCredentials([azureServicePrincipal(credentialsId: "${AZURE_CRED_ID}")]) {
+                    script {
+                        // Login to Azure
+                        sh '''
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                        '''
+                        
+                        // Login to ACR
+                        sh '''
+                            az acr login --name $ACR_NAME
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                // Push Docker image to ACR
+                sh "docker push ${ACR_REPO}/${IMAGE_NAME}:latest"
+            }
+        }
+        
+       stage('Debug Ansible Collection Path') {
+      steps {
+        script {
+          // Print Ansible collection paths for debugging
+          sh '''
+            ansible-config dump | grep COLLECTIONS_PATHS
+          '''
+        }
+      }
+    }
+       stage('Deploy to AKS') {
+            steps {
+                withCredentials([file(credentialsId: KUBECONFIG_ID, variable: 'KUBECONFIG_PATH')]) {
+                    ansiblePlaybook(
+                        playbook: 'deploy_aks.yml',
+                        inventory: 'localhost,',
+                        extras: '-e kubeconfig_path=${KUBECONFIG_PATH}'
+                        )
+                }
+            }
+       }
+    }
+    
+}
