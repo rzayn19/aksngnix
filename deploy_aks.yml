@@ -9,12 +9,6 @@
     kubeconfig_path: "{{ kubeconfig }}"
 
   tasks:
-    - name: Ensure kubectl is installed
-      local_action:
-        module: shell
-        cmd: |
-          az aks install-cli
-
     - name: Ensure the necessary directory exists
       local_action:
         module: file
