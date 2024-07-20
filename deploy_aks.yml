@@ -6,8 +6,6 @@
     aks_resource_group: "rdaksdemo"
     aks_cluster_name: "rdaks"
     kubeconfig_path: "{{ kubeconfig_path }}"
-  environment:
-    ANSIBLE_COLLECTIONS_PATHS: "/root/.ansible/collections"
 
   tasks:
     - name: Ensure kubectl is installed
@@ -31,7 +29,7 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
-     - name: Apply Kubernetes manifests
+    - name: Apply Kubernetes manifests
       shell: |
         kubectl apply -f /tmp/your-app/deployment.yml
       environment:
