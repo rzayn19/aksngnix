@@ -5,7 +5,7 @@
   vars:
     aks_resource_group: "rdaksdemo"
     aks_cluster_name: "rdaks"
-    kubeconfig_path: "{{ kubeconfig_path }}"
+    kubeconfig_path: "{{ kubeconfig }}"
 
   tasks:
     - name: Ensure kubectl is installed
@@ -41,7 +41,7 @@
         cmd: |
           kubectl apply -f /tmp/your-app/deployment.yml
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: "{{ kubeconfig}}"
 
     - name: Verify deployment
       local_action:
