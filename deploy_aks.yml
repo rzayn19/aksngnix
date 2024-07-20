@@ -3,8 +3,8 @@
   hosts: localhost
   gather_facts: no
   vars:
-    aks_resource_group: "your-aks-resource-group"
-    aks_cluster_name: "your-aks-cluster-name"
+    aks_resource_group: "rdaksdemo"
+    aks_cluster_name: "rdaks"
     kubeconfig_path: "{{ kubeconfig_path }}"
   environment:
     ANSIBLE_COLLECTIONS_PATHS: "/root/.ansible/collections"
