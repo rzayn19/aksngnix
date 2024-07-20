@@ -2,6 +2,11 @@
 - name: Deploy Docker application to AKS
   hosts: localhost
   gather_facts: no
+  vars:
+    aks_resource_group: "rdaksdemo"
+    aks_cluster_name: "rdaks"
+    kubeconfig_path: "{{ kubeconfig_path }}"
+
   tasks:
     - name: Ensure kubectl is installed
       shell: |
@@ -17,12 +22,26 @@
         repo: 'https://github.com/rzayn19/aksngnix.git'
         dest: /tmp/your-app
         version: HEAD
-        
-    - name: Read deployment definition
-      set_fact:
-       definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
+
+    - name: Set kubectl context
+      shell: |
+        az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
     - name: Apply Kubernetes manifests
       kubernetes.core.k8s:
-       definition: "{{ deployment_definition }}"
-       state: present
+        kubeconfig: "{{ kubeconfig_path }}"
+        definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
+        state: present
+
+    - name: Verify deployment
+      shell: |
+        kubectl get deployments
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: deploy_status
+
+    - name: Show deployment status
+      debug:
+        msg: "{{ deploy_status.stdout }}"
