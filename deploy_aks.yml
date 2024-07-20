@@ -9,35 +9,45 @@
 
   tasks:
     - name: Ensure kubectl is installed
-      shell: |
-        az aks install-cli
+      local_action:
+        module: shell
+        cmd: |
+          az aks install-cli
 
     - name: Ensure the necessary directory exists
-      file:
+      local_action:
+        module: file
         path: /tmp/your-app
         state: directory
 
     - name: Clone the Git repository
-      git:
+      local_action:
+        module: git
         repo: 'https://github.com/rzayn19/aksngnix.git'
         dest: /tmp/your-app
         version: HEAD
 
     - name: Set kubectl context
-      shell: |
-        az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
+      local_action:
+        module: shell
+        cmd: |
+          az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
     - name: Apply Kubernetes manifests
-      shell: |
-        kubectl apply -f /tmp/your-app/deployment.yml
+      local_action:
+        module: shell
+        cmd: |
+          kubectl apply -f /tmp/your-app/deployment.yml
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
     - name: Verify deployment
-      shell: |
-        kubectl get deployments
+      local_action:
+        module: shell
+        cmd: |
+          kubectl get deployments
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
       register: deploy_status
