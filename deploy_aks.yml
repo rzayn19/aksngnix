@@ -21,9 +21,8 @@
     - name: Read deployment definition
       set_fact:
        definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
-       
+
     - name: Apply Kubernetes manifests
       kubernetes.core.k8s:
-      definition: "{{ deployment_definition }}"
-      state: present
-        
+       definition: "{{ deployment_definition }}"
+       state: present
