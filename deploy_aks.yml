@@ -29,7 +29,7 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Apply Kubernetes manifests
+    - name: Create Kubernetes manifests
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}"
         definition: "{{ lookup('file', '/tmp/your-app/deployment.yml') }}"
