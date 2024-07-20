@@ -1,6 +1,7 @@
 ---
 - name: Deploy Docker application to AKS
   hosts: localhost
+  connection: local
   gather_facts: no
   vars:
     aks_resource_group: "rdaksdemo"
