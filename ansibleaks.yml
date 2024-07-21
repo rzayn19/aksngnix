@@ -1,0 +1,58 @@
+---
+- name: Deploy Docker application to AKS
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    aks_resource_group: "rdaksdemo"
+    aks_cluster_name: "rdaks"
+    kubeconfig_path: "{{ kubeconfig_path }}"
+    azure_subscription_id: "{{ azure_subscription_id }}"
+    azure_tenant_id: "{{ azure_tenant_id }}"
+    azure_client_id: "{{ azure_client_id }}"
+    azure_client_secret: "{{ azure_client_secret }}"
+
+  tasks:
+    - name: Ensure the necessary directory exists
+      file:
+        path: /tmp/your-app
+        state: directory
+
+    - name: Clone the Git repository
+      git:
+        repo: 'https://github.com/rzayn19/aksngnix.git'
+        dest: /tmp/your-app
+        version: HEAD
+
+    - name: Ensure kubeconfig file is writable
+      file:
+        path: "{{ kubeconfig_path }}"
+        mode: '0600'
+
+    - name: Azure CLI login using Service Principal
+      shell: |
+        az login --service-principal -u {{ azure_client_id }} -p {{ azure_client_secret }} --tenant {{ azure_tenant_id }}
+        az account set --subscription {{ azure_subscription_id }}
+
+    - name: Set kubectl context
+      shell: |
+        az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Apply Kubernetes manifests
+      shell: |
+        kubectl apply -f /tmp/your-app/deployment.yml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Verify deployment
+      shell: |
+        kubectl get deployments
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: deploy_status
+
+    - name: Show deployment status
+      debug:
+        msg: "{{ deploy_status.stdout }}"
