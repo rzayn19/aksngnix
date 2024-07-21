@@ -7,10 +7,10 @@
     aks_resource_group: "rdaksdemo"
     aks_cluster_name: "rdaks"
     kubeconfig_path: "{{ kubeconfig_path }}"
-    azure_subscription_id: "{{ azure_subscription_id }}"
-    azure_tenant_id: "{{ azure_tenant_id }}"
-    azure_client_id: "{{ azure_client_id }}"
-    azure_client_secret: "{{ azure_client_secret }}"
+    azure_client_id: $(AZURE_CLIENT_ID)
+    azure_client_secret: $(AZURE_CLEINT_SECRET)
+    azure_tenant_id: $(AZURE_TENANT_ID)
+    azure_subscription_id: $(AZURE_SUBSCRIPTION_ID)
 
   tasks:
     - name: Ensure the necessary directory exists
@@ -24,10 +24,6 @@
         dest: /tmp/your-app
         version: HEAD
 
-    - name: Ensure kubeconfig file is writable
-      file:
-        path: "{{ kubeconfig_path }}"
-        mode: '0600'
 
     - name: Azure CLI login using Service Principal
       shell: |
@@ -39,6 +35,12 @@
         az aks get-credentials --resource-group {{ aks_resource_group }} --name {{ aks_cluster_name }} --file {{ kubeconfig_path }}
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
+
+
+    - name: Ensure kubeconfig file is writable
+      file:
+        path: "{{ kubeconfig_path }}"
+        mode: '0600'
 
     - name: Apply Kubernetes manifests
       shell: |
