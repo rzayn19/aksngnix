@@ -1,3 +1,3 @@
-Deploy Springboot Microservices into AKS cluster using Helm and Azure Pipelines: Used helm charts to pack java 
-web app, push to ACR and Pull to AKS Cluster. Upstream Pod using helm charts. 
-Tasks: Helm Install & Helm Upgrade, Azure CI/CD
+Deploy Sample NGNIX Html Application into AKS Cluster using Ansible and Jenkins Build: Used Jenkins Stages to 
+Build Docker image, Push to ACR , Pull from ACR, Deploy to AKS Cluster and Ansible Playbook with K8s Core Module to 
+deploy application into AKS Cluster.
